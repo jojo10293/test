@@ -186,19 +186,39 @@ def create_3d_pbt_diagram():
             st.sidebar.success("✅ Animation bereit!")
             st.sidebar.markdown("**Animation wird unten angezeigt**")
     
-    # Create volume and temperature ranges with high resolution
-    V_range = np.linspace(0.00001, 1, 200)
-    T_range = np.linspace(200, 400, 200)
-    V_mesh, T_mesh = np.meshgrid(V_range, T_range)
+    # Create cache key for surface data
+    cache_key = f"{a_val}_{b_val}_{n_val}_{p_max_val}"
+    
+    # Cache expensive calculations
+    if 'surface_cache_key' not in st.session_state or st.session_state.surface_cache_key != cache_key:
+        # Only recalculate if parameters changed
+        with st.spinner('Berechne Oberfläche...'):
+            # Create volume and temperature ranges with optimized resolution
+            V_range = np.linspace(0.00001, 1, 150)  # Reduced from 200 for speed
+            T_range = np.linspace(200, 400, 150)
+            V_mesh, T_mesh = np.meshgrid(V_range, T_range)
 
-    # Calculate pressure surface
-    P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
-    #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)  # Mask negative pressures
+            # Calculate pressure surface once and cache it
+            P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
+            
+            # Cache the results
+            st.session_state.surface_cache_key = cache_key
+            st.session_state.V_range = V_range
+            st.session_state.T_range = T_range
+            st.session_state.V_mesh = V_mesh
+            st.session_state.T_mesh = T_mesh
+            st.session_state.P_mesh = P_mesh
+    else:
+        # Use cached data
+        V_range = st.session_state.V_range
+        T_range = st.session_state.T_range
+        V_mesh = st.session_state.V_mesh
+        T_mesh = st.session_state.T_mesh
+        P_mesh = st.session_state.P_mesh
 
-    # Calculate pressure slice for current temperature
+    # Calculate pressure slice for current temperature (fast operation)
     V_slice_range = V_range
     P_slice = van_der_waals_equation(V_slice_range, T_slice_val, a_val, b_val, n_val)
-    #P_slice = np.where(P_slice >= 0, P_slice, np.nan)  # Mask negative pressures
 
     # Create two columns for the plots
     col1, col2 = st.columns(2)
@@ -206,14 +226,14 @@ def create_3d_pbt_diagram():
     with col1:
         st.subheader("3D PVT Oberfläche")
         
-        # Create 3D plot
+        # Create 3D plot with cached data
         fig_3d = plt.figure(figsize=(10, 8))
         ax3d = fig_3d.add_subplot(111, projection='3d')
         
-        # Create 3D surface plot
+        # Create 3D surface plot with reduced complexity for speed
         surface = ax3d.plot_surface(
             V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.7,
-            linewidth=0, antialiased=False
+            linewidth=0, antialiased=False, rcount=50, ccount=50  # Reduced surface resolution
         )
         
         # Add temperature slice line - ensure it's always visible on top
@@ -231,12 +251,12 @@ def create_3d_pbt_diagram():
         ax3d.set_zlim(0, p_max_val)
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
-        st.pyplot(fig_3d)
+        st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
     with col2:
         st.subheader("P-V Isotherme (2D Schnitt)")
         
-        # Create 2D plot
+        # Create 2D plot (this is already fast)
         fig_2d = plt.figure(figsize=(10, 8))
         ax2d = fig_2d.add_subplot(111)
         
@@ -251,7 +271,7 @@ def create_3d_pbt_diagram():
         ax2d.set_title(f'P-V Isotherme bei T = {T_slice_val:.0f} K')
         ax2d.grid(True, alpha=0.3)
         
-        st.pyplot(fig_2d)
+        st.pyplot(fig_2d, clear_figure=True)  # Clear figure for memory optimization
     
     # Display animation if available
     if 'animation_html' in st.session_state:
