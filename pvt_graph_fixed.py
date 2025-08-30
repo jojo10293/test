@@ -128,6 +128,16 @@ def create_3d_pbt_diagram():
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1)
     
+    # Text inputs for a and b parameters
+    col1, col2 = st.sidebar.columns(2)
+    with col1:
+        a_val = st.number_input('Parameter a', value=a_init, format="%.1f", key="param_a")
+    with col2:
+        b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b")
+    
+    n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1)
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000)
+    
     # Animation controls
     st.sidebar.markdown("---")
     st.sidebar.subheader("Animation")
@@ -150,19 +160,6 @@ def create_3d_pbt_diagram():
         if 'animation_html' in st.session_state:
             st.sidebar.success("✅ Animation bereit!")
             st.sidebar.markdown("**Animation wird unten angezeigt**")
-    
-    # Remove old animation logic
-    T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1)
-    
-    # Text inputs for a and b parameters
-    col1, col2 = st.sidebar.columns(2)
-    with col1:
-        a_val = st.number_input('Parameter a', value=a_init, format="%.1f", key="param_a")
-    with col2:
-        b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b")
-    
-    n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1)
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000)
     
     # Create volume and temperature ranges with high resolution
     V_range = np.linspace(0.00001, 1, 200)
