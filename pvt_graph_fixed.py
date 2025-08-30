@@ -193,12 +193,12 @@ def create_3d_pbt_diagram():
 
     # Calculate pressure surface
     P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
-    P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)  # Mask negative pressures
+    #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)  # Mask negative pressures
 
     # Calculate pressure slice for current temperature
     V_slice_range = V_range
     P_slice = van_der_waals_equation(V_slice_range, T_slice_val, a_val, b_val, n_val)
-    P_slice = np.where(P_slice >= 0, P_slice, np.nan)  # Mask negative pressures
+    #P_slice = np.where(P_slice >= 0, P_slice, np.nan)  # Mask negative pressures
 
     # Create two columns for the plots
     col1, col2 = st.columns(2)
