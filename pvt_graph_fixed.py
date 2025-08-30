@@ -58,7 +58,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up figure with fixed, larger size
-    fig = plt.figure(figsize=(16, 8))
+    fig = plt.figure(figsize=(16*0.8, 8*0.8))
     fig.set_tight_layout(True)
     
     # 3D subplot
@@ -88,7 +88,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
         
         # Calculate pressure slice for current temperature
         P_slice = van_der_waals_equation(V_range, T_current, a_val, b_val, n_val)
-        P_slice = np.where(P_slice >= 0, P_slice, np.nan)
+        #P_slice = np.where(P_slice >= 0, P_slice, np.nan)
         
         valid_mask = ~np.isnan(P_slice)
         
