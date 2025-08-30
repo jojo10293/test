@@ -2,7 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import streamlit as st
-import time
+import matplotlib.animation as animation
+from io import BytesIO
+import base64
 
 def van_der_waals_equation(V, T, a, b, n, p_max=None):
     """
@@ -39,6 +41,73 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
  
     
     return P
+
+
+def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
+    """Create an animated GIF of temperature sweep"""
+    # Temperature range for animation
+    temps = np.linspace(200, 400, num_frames)
+    
+    # Volume range
+    V_range = np.linspace(0.00001, 1, 100)  # Reduced resolution for performance
+    
+    # Set up the figure and axis
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    # Initialize empty plots
+    line1, = ax1.plot([], [], 'red', linewidth=3)
+    line2, = ax2.plot([], [], 'red', linewidth=3)
+    
+    def animate_frame(frame):
+        T_current = temps[frame]
+        
+        # Calculate pressure for current temperature
+        P_slice = van_der_waals_equation(V_range, T_current, a_val, b_val, n_val)
+        P_slice = np.where(P_slice >= 0, P_slice, np.nan)
+        
+        # Update left plot (P-V)
+        valid_mask = ~np.isnan(P_slice)
+        if np.any(valid_mask):
+            line1.set_data(V_range[valid_mask], P_slice[valid_mask])
+        else:
+            line1.set_data([], [])
+        
+        # Update right plot (same as left for now, could be different view)
+        if np.any(valid_mask):
+            line2.set_data(V_range[valid_mask], P_slice[valid_mask])
+        else:
+            line2.set_data([], [])
+        
+        # Update titles
+        ax1.set_title(f'P-V Isotherme bei T = {T_current:.0f} K')
+        ax2.set_title(f'P-V Isotherme (Zoom) bei T = {T_current:.0f} K')
+        
+        return line1, line2
+    
+    # Set up axes
+    ax1.set_xlim(0, 1)
+    ax1.set_ylim(0, p_max_val)
+    ax1.set_xlabel('Volumen (V) [L]')
+    ax1.set_ylabel('Druck (P) [Pa]')
+    ax1.grid(True, alpha=0.3)
+    
+    ax2.set_xlim(0, 0.2)  # Zoomed view
+    ax2.set_ylim(0, p_max_val * 0.5)
+    ax2.set_xlabel('Volumen (V) [L]')
+    ax2.set_ylabel('Druck (P) [Pa]')
+    ax2.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    
+    # Create animation
+    anim = animation.FuncAnimation(fig, animate_frame, frames=num_frames, 
+                                 interval=200, blit=True, repeat=True)
+    
+    # Convert to HTML
+    html_str = anim.to_jshtml()
+    plt.close(fig)
+    
+    return html_str
     
 
 def create_3d_pbt_diagram():
@@ -66,49 +135,24 @@ def create_3d_pbt_diagram():
     # Animation button and speed control
     col_anim1, col_anim2 = st.sidebar.columns(2)
     with col_anim1:
-        animate_button = st.button("🎬 Animation starten", key="animate")
+        generate_animation = st.button("🎬 Animation generieren", key="generate_anim")
     with col_anim2:
-        animation_speed = st.selectbox("Geschwindigkeit", [0.1, 0.2, 0.5, 1.0], index=2, key="speed")
+        animation_frames = st.selectbox("Frames", [20, 40, 60, 80], index=1, key="frames")
     
-    # Initialize session state for animation
-    if 'animating' not in st.session_state:
-        st.session_state.animating = False
-    if 'current_temp' not in st.session_state:
-        st.session_state.current_temp = T_init
-    if 'temp_direction' not in st.session_state:
-        st.session_state.temp_direction = 1  # 1 for increasing, -1 for decreasing
+    # Static animation display
+    if generate_animation or 'animation_html' in st.session_state:
+        if generate_animation:
+            # Generate animation only when button is clicked
+            with st.spinner('Generiere Animation... Bitte warten.'):
+                animation_html = create_temperature_animation(animation_frames, a_val, b_val, n_val, p_max_val)
+                st.session_state.animation_html = animation_html
+        
+        if 'animation_html' in st.session_state:
+            st.sidebar.success("✅ Animation bereit!")
+            st.sidebar.markdown("**Animation wird unten angezeigt**")
     
-    # Handle animation
-    if animate_button:
-        st.session_state.animating = not st.session_state.animating
-    
-    # Animation logic
-    if st.session_state.animating:
-        # Update temperature for animation
-        temp_step = 5 * st.session_state.temp_direction
-        new_temp = st.session_state.current_temp + temp_step
-        
-        # Reverse direction at boundaries
-        if new_temp >= 400:
-            st.session_state.temp_direction = -1
-            new_temp = 400
-        elif new_temp <= 200:
-            st.session_state.temp_direction = 1
-            new_temp = 200
-            
-        st.session_state.current_temp = new_temp
-        T_slice_val = new_temp
-        
-        # Add animation status indicator
-        st.sidebar.success(f"🎬 Animiere bei T = {T_slice_val:.0f} K")
-        st.sidebar.info("Klicke 'Animation starten' erneut zum Stoppen")
-        
-        # Auto-refresh for animation
-        time.sleep(animation_speed)
-        st.rerun()
-    else:
-        # Use slider value when not animating
-        st.session_state.current_temp = T_slice_val
+    # Remove old animation logic
+    T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1)
     
     # Text inputs for a and b parameters
     col1, col2 = st.sidebar.columns(2)
@@ -165,8 +209,7 @@ def create_3d_pbt_diagram():
         ax3d.set_zlim(0, p_max_val)
         
         # Add animation indicator to title
-        animation_status = " (ANIMIEREND)" if st.session_state.animating else ""
-        ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}{animation_status}')
+        ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
         st.pyplot(fig_3d)
     
@@ -185,13 +228,16 @@ def create_3d_pbt_diagram():
         ax2d.set_xlabel('Volumen (V) [L]')
         ax2d.set_ylabel('Druck (P) [Pa]')
         ax2d.set_ylim(0, p_max_val)
-        
-        # Add animation indicator to 2D title as well
-        animation_status = " (ANIMIEREND)" if st.session_state.animating else ""
-        ax2d.set_title(f'P-V Isotherme bei T = {T_slice_val:.0f} K{animation_status}')
+        ax2d.set_title(f'P-V Isotherme bei T = {T_slice_val:.0f} K')
         ax2d.grid(True, alpha=0.3)
         
         st.pyplot(fig_2d)
+    
+    # Display animation if available
+    if 'animation_html' in st.session_state:
+        st.markdown("---")
+        st.subheader("🎬 Temperatur-Animation")
+        st.components.v1.html(st.session_state.animation_html, height=500, scrolling=True)
     
     # Add information section
     st.markdown("---")
@@ -201,13 +247,14 @@ def create_3d_pbt_diagram():
     - **Parameter a & b**: Gib präzise Van der Waals Parameter für verschiedene Gase ein
     - **Stoffmenge n**: Passe die Anzahl der Mol an
     - **P-Achse Max**: Ändere den maximalen Druck für bessere Visualisierung
-    - **🎬 Animation**: Klicke "Animation starten" um automatisch durch die Temperaturen zu fahren
+    - **🎬 Animation generieren**: Erstellt eine flüssige HTML5-Animation (einmalig generieren, dann wiederverwenden)
     
     **Animations-Features:**
-    - Läuft automatisch von 200K bis 400K und zurück
-    - Einstellbare Geschwindigkeit (0,1s bis 1,0s pro Frame)
-    - Erneut klicken zum Stoppen
-    - Zeigt dynamisches Van der Waals Verhalten über den Temperaturbereich
+    - **Effizient für Server**: Keine ständigen Neuladezyklen
+    - **Einstellbare Frames**: 20-80 Frames für verschiedene Qualitätsstufen
+    - **Flüssige Wiedergabe**: HTML5-basierte Animation läuft im Browser
+    - **Wiederverwendbar**: Einmal generiert, kann beliebig oft abgespielt werden
+    - **Zwei Ansichten**: Vollansicht und Zoom-Ansicht der P-V Isotherme
     
     **Aktuelle CO₂ Parameter:**
     - a = 364,0 Pa·L²/mol² (zwischenmolekulare Anziehung)
