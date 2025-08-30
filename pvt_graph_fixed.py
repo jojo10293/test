@@ -58,7 +58,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up the figure with two subplots side by side
-    fig = plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(12, 6))
     
     # 3D subplot
     ax3d = fig.add_subplot(121, projection='3d')
@@ -113,11 +113,33 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     anim = animation.FuncAnimation(fig, animate_frame, frames=num_frames, 
                                  interval=400, blit=False, repeat=True, cache_frame_data=False)
     
-    # Convert to HTML with optimized settings
+    # Convert to HTML with responsive CSS styling
     html_str = anim.to_jshtml(fps=2.5, embed_frames=True, default_mode='loop')
+    
+    # Add responsive CSS to make the animation scale with window size
+    responsive_html = f"""
+    <style>
+        .animation-container {{
+            width: 100%;
+            height: 60vh; /* 60% of viewport height */
+            min-height: 400px;
+            max-height: 800px;
+            overflow: hidden;
+        }}
+        .animation-container iframe,
+        .animation-container > div {{
+            width: 100% !important;
+            height: 100% !important;
+        }}
+    </style>
+    <div class="animation-container">
+        {html_str}
+    </div>
+    """
+    
     plt.close(fig)
     
-    return html_str
+    return responsive_html
     
 
 def create_3d_pbt_diagram():
@@ -245,8 +267,8 @@ def create_3d_pbt_diagram():
         st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
         st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
         
-        # Use container with responsive height but within reasonable bounds
-        st.components.v1.html(st.session_state.animation_html, height=1000, scrolling=False)
+        # Display responsive animation that adapts to window size
+        st.components.v1.html(st.session_state.animation_html, scrolling=False)
     
     # Add information section
     st.markdown("---")
