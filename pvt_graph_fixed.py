@@ -43,11 +43,11 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
 
 def create_3d_pbt_diagram():
     # Streamlit page configuration
-    st.set_page_config(page_title="Van der Waals 3D PVT Diagram", layout="wide")
-    st.title("3D PVT Diagram - Van der Waals Equation of State")
+    st.set_page_config(page_title="Van der Waals 3D PVT Diagramm", layout="wide")
+    st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
     
     # Sidebar for controls
-    st.sidebar.header("Parameters")
+    st.sidebar.header("Parameter")
     
     # Initial parameters for Van der Waals equation - CO₂ values
     T_init = 300
@@ -57,7 +57,7 @@ def create_3d_pbt_diagram():
     P_max_init = 50000
     
     # Streamlit controls in sidebar
-    T_slice_val = st.sidebar.slider('Temperature Slice (K)', min_value=200, max_value=400, value=T_init, step=1)
+    T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1)
     
     # Animation controls
     st.sidebar.markdown("---")
@@ -66,9 +66,9 @@ def create_3d_pbt_diagram():
     # Animation button and speed control
     col_anim1, col_anim2 = st.sidebar.columns(2)
     with col_anim1:
-        animate_button = st.button("🎬 Start Animation", key="animate")
+        animate_button = st.button("🎬 Animation starten", key="animate")
     with col_anim2:
-        animation_speed = st.selectbox("Speed", [0.1, 0.2, 0.5, 1.0], index=2, key="speed")
+        animation_speed = st.selectbox("Geschwindigkeit", [0.1, 0.2, 0.5, 1.0], index=2, key="speed")
     
     # Initialize session state for animation
     if 'animating' not in st.session_state:
@@ -100,8 +100,8 @@ def create_3d_pbt_diagram():
         T_slice_val = new_temp
         
         # Add animation status indicator
-        st.sidebar.success(f"🎬 Animating at T = {T_slice_val:.0f} K")
-        st.sidebar.info("Click 'Start Animation' again to stop")
+        st.sidebar.success(f"🎬 Animiere bei T = {T_slice_val:.0f} K")
+        st.sidebar.info("Klicke 'Animation starten' erneut zum Stoppen")
         
         # Auto-refresh for animation
         time.sleep(animation_speed)
@@ -117,8 +117,8 @@ def create_3d_pbt_diagram():
     with col2:
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b")
     
-    n_val = st.sidebar.slider('Moles n', min_value=0.1, max_value=5.0, value=n_init, step=0.1)
-    p_max_val = st.sidebar.slider('P-axis Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000)
+    n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1)
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000)
     
     # Create volume and temperature ranges with high resolution
     V_range = np.linspace(0.00001, 1, 200)
@@ -138,7 +138,7 @@ def create_3d_pbt_diagram():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("3D PVT Surface")
+        st.subheader("3D PVT Oberfläche")
         
         # Create 3D plot
         fig_3d = plt.figure(figsize=(10, 8))
@@ -159,19 +159,19 @@ def create_3d_pbt_diagram():
                      zorder=1000, alpha=1.0)
         
         # Set labels and limits
-        ax3d.set_xlabel('Volume (V) [L]')
-        ax3d.set_ylabel('Temperature (T) [K]')
-        ax3d.set_zlabel('Pressure (P) [Pa]')
+        ax3d.set_xlabel('Volumen (V) [L]')
+        ax3d.set_ylabel('Temperatur (T) [K]')
+        ax3d.set_zlabel('Druck (P) [Pa]')
         ax3d.set_zlim(0, p_max_val)
         
         # Add animation indicator to title
-        animation_status = " (ANIMATING)" if st.session_state.animating else ""
+        animation_status = " (ANIMIEREND)" if st.session_state.animating else ""
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}{animation_status}')
         
         st.pyplot(fig_3d)
     
     with col2:
-        st.subheader("P-V Isotherm (2D Slice)")
+        st.subheader("P-V Isotherme (2D Schnitt)")
         
         # Create 2D plot
         fig_2d = plt.figure(figsize=(10, 8))
@@ -182,36 +182,36 @@ def create_3d_pbt_diagram():
         if np.any(valid_mask_2d):
             ax2d.plot(V_slice_range[valid_mask_2d], P_slice[valid_mask_2d], 'red', linewidth=3)
         
-        ax2d.set_xlabel('Volume (V) [L]')
-        ax2d.set_ylabel('Pressure (P) [Pa]')
+        ax2d.set_xlabel('Volumen (V) [L]')
+        ax2d.set_ylabel('Druck (P) [Pa]')
         ax2d.set_ylim(0, p_max_val)
         
         # Add animation indicator to 2D title as well
-        animation_status = " (ANIMATING)" if st.session_state.animating else ""
-        ax2d.set_title(f'P-V Isotherm at T = {T_slice_val:.0f} K{animation_status}')
+        animation_status = " (ANIMIEREND)" if st.session_state.animating else ""
+        ax2d.set_title(f'P-V Isotherme bei T = {T_slice_val:.0f} K{animation_status}')
         ax2d.grid(True, alpha=0.3)
         
         st.pyplot(fig_2d)
     
     # Add information section
     st.markdown("---")
-    st.subheader("Instructions")
+    st.subheader("Anleitung")
     st.markdown("""
-    - **Temperature Slice**: Use the slider to change the temperature of the red line shown in the 3D plot
-    - **Parameters a & b**: Enter precise Van der Waals parameters for different gases
-    - **Moles n**: Adjust the number of moles
-    - **P-axis Max**: Change the maximum pressure for better visualization
-    - **🎬 Animation**: Click "Start Animation" to automatically cycle through temperatures
+    - **Temperatur-Schnitt**: Verwende den Schieberegler, um die Temperatur der roten Linie im 3D-Plot zu ändern
+    - **Parameter a & b**: Gib präzise Van der Waals Parameter für verschiedene Gase ein
+    - **Stoffmenge n**: Passe die Anzahl der Mol an
+    - **P-Achse Max**: Ändere den maximalen Druck für bessere Visualisierung
+    - **🎬 Animation**: Klicke "Animation starten" um automatisch durch die Temperaturen zu fahren
     
-    **Animation Features:**
-    - Automatically sweeps from 200K to 400K and back
-    - Adjustable speed (0.1s to 1.0s per frame)
-    - Click again to stop animation
-    - Shows dynamic Van der Waals behavior across temperature range
+    **Animations-Features:**
+    - Läuft automatisch von 200K bis 400K und zurück
+    - Einstellbare Geschwindigkeit (0,1s bis 1,0s pro Frame)
+    - Erneut klicken zum Stoppen
+    - Zeigt dynamisches Van der Waals Verhalten über den Temperaturbereich
     
-    **Current CO₂ Parameters:**
-    - a = 364.0 Pa·L²/mol² (intermolecular attraction)
-    - b = 0.04267 L/mol (molecular volume)
+    **Aktuelle CO₂ Parameter:**
+    - a = 364,0 Pa·L²/mol² (zwischenmolekulare Anziehung)
+    - b = 0,04267 L/mol (Molekülvolumen)
     """)
     
     # Close matplotlib figures to prevent memory leaks
