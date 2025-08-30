@@ -246,7 +246,7 @@ def create_3d_pbt_diagram():
         st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
         
         # Use a container with more height to prevent clipping
-        st.components.v1.html(st.session_state.animation_html, height=700, scrolling=False)
+        st.components.v1.html(st.session_state.animation_html, height=1100, scrolling=False)
     
     # Add information section
     st.markdown("---")
