@@ -55,7 +55,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     
     # Calculate the full 3D surface once
     P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
-    P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
+    #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up figure with fixed, larger size
     fig = plt.figure(figsize=(16, 8))
