@@ -57,8 +57,9 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
     P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
-    # Set up the figure with two subplots side by side
-    fig = plt.figure(figsize=(12, 6))
+    # Set up responsive figure without fixed size
+    fig = plt.figure()
+    fig.set_tight_layout(True)
     
     # 3D subplot
     ax3d = fig.add_subplot(121, projection='3d')
@@ -121,15 +122,23 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     <style>
         .animation-container {{
             width: 100%;
-            height: 60vh; /* 60% of viewport height */
-            min-height: 400px;
-            max-height: 800px;
+            height: auto;
+            max-width: 100%;
             overflow: hidden;
         }}
         .animation-container iframe,
-        .animation-container > div {{
+        .animation-container > div,
+        .animation-container canvas,
+        .animation-container svg {{
             width: 100% !important;
-            height: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+            object-fit: contain;
+        }}
+        /* Force matplotlib figure to be responsive */
+        .animation-container .matplotlib-figure {{
+            width: 100% !important;
+            height: auto !important;
         }}
     </style>
     <div class="animation-container">
