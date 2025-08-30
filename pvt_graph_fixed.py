@@ -52,7 +52,7 @@ def create_3d_pbt_diagram():
     T_init = 300
     a_init = 364.0   # Van der Waals parameter a for CO₂ [Pa·L²/mol²]
     b_init = 0.04267  # Van der Waals parameter b for CO₂ [L/mol]
-    n_init = 1
+    n_init = 1.0  # Changed to float
     P_max_init = 50000
     
     # Streamlit controls in sidebar
