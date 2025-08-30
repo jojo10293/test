@@ -56,7 +56,7 @@ def create_3d_pbt_diagram():
     P_max_init = 50000
     
     # Streamlit controls in sidebar
-    T_slice_val = st.sidebar.slider('Temperature Slice (K)', 200, 400, T_init)
+    T_slice_val = st.sidebar.slider('Temperature Slice (K)', min_value=200, max_value=400, value=T_init, step=1)
     
     # Text inputs for a and b parameters
     col1, col2 = st.sidebar.columns(2)
@@ -65,8 +65,8 @@ def create_3d_pbt_diagram():
     with col2:
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b")
     
-    n_val = st.sidebar.slider('Moles n', 0.1, 5.0, n_init, 0.1)
-    p_max_val = st.sidebar.slider('P-axis Max (Pa)', 1000, 100000, P_max_init)
+    n_val = st.sidebar.slider('Moles n', min_value=0.1, max_value=5.0, value=n_init, step=0.1)
+    p_max_val = st.sidebar.slider('P-axis Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000)
     
     # Create volume and temperature ranges with high resolution
     V_range = np.linspace(0.00001, 1, 200)
