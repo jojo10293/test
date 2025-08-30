@@ -117,33 +117,21 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     # Convert to HTML with responsive CSS styling
     html_str = anim.to_jshtml(fps=2.5, embed_frames=True, default_mode='loop')
     
-    # Add responsive CSS to make the animation scale with window size
+    # Add simple responsive CSS that actually works
     responsive_html = f"""
     <style>
         .animation-container {{
             width: 100%;
-            position: relative;
-            padding-bottom: 50%; /* 2:1 aspect ratio (50% = height/width) */
-            height: 0;
+            max-width: 100%;
             overflow: hidden;
         }}
-        .animation-container > div {{
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
-        }}
+        .animation-container > div,
         .animation-container iframe,
         .animation-container canvas,
         .animation-container svg {{
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100% !important;
-            height: 100% !important;
-            object-fit: contain;
-            border: none;
+            height: auto !important;
+            max-width: 100% !important;
         }}
     </style>
     <div class="animation-container">
@@ -281,8 +269,8 @@ def create_3d_pbt_diagram():
         st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
         st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
         
-        # Display responsive animation that adapts to window size
-        st.components.v1.html(st.session_state.animation_html, scrolling=False)
+        # Display animation with reasonable fixed height
+        st.components.v1.html(st.session_state.animation_html, height=400, scrolling=False)
     
     # Add information section
     st.markdown("---")
