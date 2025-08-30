@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import streamlit as st
+import time
 
 def van_der_waals_equation(V, T, a, b, n, p_max=None):
     """
@@ -58,6 +59,57 @@ def create_3d_pbt_diagram():
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperature Slice (K)', min_value=200, max_value=400, value=T_init, step=1)
     
+    # Animation controls
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Animation")
+    
+    # Animation button and speed control
+    col_anim1, col_anim2 = st.sidebar.columns(2)
+    with col_anim1:
+        animate_button = st.button("🎬 Start Animation", key="animate")
+    with col_anim2:
+        animation_speed = st.selectbox("Speed", [0.1, 0.2, 0.5, 1.0], index=2, key="speed")
+    
+    # Initialize session state for animation
+    if 'animating' not in st.session_state:
+        st.session_state.animating = False
+    if 'current_temp' not in st.session_state:
+        st.session_state.current_temp = T_init
+    if 'temp_direction' not in st.session_state:
+        st.session_state.temp_direction = 1  # 1 for increasing, -1 for decreasing
+    
+    # Handle animation
+    if animate_button:
+        st.session_state.animating = not st.session_state.animating
+    
+    # Animation logic
+    if st.session_state.animating:
+        # Update temperature for animation
+        temp_step = 5 * st.session_state.temp_direction
+        new_temp = st.session_state.current_temp + temp_step
+        
+        # Reverse direction at boundaries
+        if new_temp >= 400:
+            st.session_state.temp_direction = -1
+            new_temp = 400
+        elif new_temp <= 200:
+            st.session_state.temp_direction = 1
+            new_temp = 200
+            
+        st.session_state.current_temp = new_temp
+        T_slice_val = new_temp
+        
+        # Add animation status indicator
+        st.sidebar.success(f"🎬 Animating at T = {T_slice_val:.0f} K")
+        st.sidebar.info("Click 'Start Animation' again to stop")
+        
+        # Auto-refresh for animation
+        time.sleep(animation_speed)
+        st.rerun()
+    else:
+        # Use slider value when not animating
+        st.session_state.current_temp = T_slice_val
+    
     # Text inputs for a and b parameters
     col1, col2 = st.sidebar.columns(2)
     with col1:
@@ -111,7 +163,10 @@ def create_3d_pbt_diagram():
         ax3d.set_ylabel('Temperature (T) [K]')
         ax3d.set_zlabel('Pressure (P) [Pa]')
         ax3d.set_zlim(0, p_max_val)
-        ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
+        
+        # Add animation indicator to title
+        animation_status = " (ANIMATING)" if st.session_state.animating else ""
+        ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}{animation_status}')
         
         st.pyplot(fig_3d)
     
@@ -130,7 +185,10 @@ def create_3d_pbt_diagram():
         ax2d.set_xlabel('Volume (V) [L]')
         ax2d.set_ylabel('Pressure (P) [Pa]')
         ax2d.set_ylim(0, p_max_val)
-        ax2d.set_title(f'P-V Isotherm at T = {T_slice_val:.0f} K')
+        
+        # Add animation indicator to 2D title as well
+        animation_status = " (ANIMATING)" if st.session_state.animating else ""
+        ax2d.set_title(f'P-V Isotherm at T = {T_slice_val:.0f} K{animation_status}')
         ax2d.grid(True, alpha=0.3)
         
         st.pyplot(fig_2d)
@@ -143,6 +201,13 @@ def create_3d_pbt_diagram():
     - **Parameters a & b**: Enter precise Van der Waals parameters for different gases
     - **Moles n**: Adjust the number of moles
     - **P-axis Max**: Change the maximum pressure for better visualization
+    - **🎬 Animation**: Click "Start Animation" to automatically cycle through temperatures
+    
+    **Animation Features:**
+    - Automatically sweeps from 200K to 400K and back
+    - Adjustable speed (0.1s to 1.0s per frame)
+    - Click again to stop animation
+    - Shows dynamic Van der Waals behavior across temperature range
     
     **Current CO₂ Parameters:**
     - a = 364.0 Pa·L²/mol² (intermolecular attraction)
