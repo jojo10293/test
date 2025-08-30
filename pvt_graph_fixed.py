@@ -57,8 +57,8 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
     P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
-    # Set up responsive figure without fixed size
-    fig = plt.figure()
+    # Set up figure with fixed, larger size
+    fig = plt.figure(figsize=(16, 8))
     fig.set_tight_layout(True)
     
     # 3D subplot
@@ -117,21 +117,12 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     # Convert to HTML with responsive CSS styling
     html_str = anim.to_jshtml(fps=2.5, embed_frames=True, default_mode='loop')
     
-    # Add simple responsive CSS that actually works
+    # Simple CSS without responsive complications
     responsive_html = f"""
     <style>
         .animation-container {{
             width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-        }}
-        .animation-container > div,
-        .animation-container iframe,
-        .animation-container canvas,
-        .animation-container svg {{
-            width: 100% !important;
-            height: auto !important;
-            max-width: 100% !important;
+            text-align: center;
         }}
     </style>
     <div class="animation-container">
@@ -269,8 +260,8 @@ def create_3d_pbt_diagram():
         st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
         st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
         
-        # Display animation with reasonable fixed height
-        st.components.v1.html(st.session_state.animation_html, height=400, scrolling=False)
+        # Display animation with larger fixed height
+        st.components.v1.html(st.session_state.animation_html, height=1000, scrolling=False)
     
     # Add information section
     st.markdown("---")
