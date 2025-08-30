@@ -44,67 +44,66 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
 
 
 def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
-    """Create an animated GIF of temperature sweep"""
+    """Create an animated 3D plot of temperature sweep through Van der Waals surface"""
     # Temperature range for animation
     temps = np.linspace(200, 400, num_frames)
     
-    # Volume range
+    # Create volume and temperature ranges for 3D surface
     V_range = np.linspace(0.00001, 1, 100)  # Reduced resolution for performance
+    T_range = np.linspace(200, 400, 100)
+    V_mesh, T_mesh = np.meshgrid(V_range, T_range)
     
-    # Set up the figure and axis
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    # Calculate the full 3D surface once
+    P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
+    P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
-    # Initialize empty plots
-    line1, = ax1.plot([], [], 'red', linewidth=3)
-    line2, = ax2.plot([], [], 'red', linewidth=3)
+    # Set up the figure for 3D animation
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Create the surface plot (static)
+    surface = ax.plot_surface(V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.6, 
+                             linewidth=0, antialiased=False)
+    
+    # Initialize empty line for temperature slice
+    line, = ax.plot([], [], [], 'red', linewidth=8, alpha=1.0, zorder=1000)
+    
+    # Set up axes
+    ax.set_xlabel('Volumen (V) [L]', fontsize=12)
+    ax.set_ylabel('Temperatur (T) [K]', fontsize=12)
+    ax.set_zlabel('Druck (P) [Pa]', fontsize=12)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(200, 400)
+    ax.set_zlim(0, p_max_val)
     
     def animate_frame(frame):
         T_current = temps[frame]
         
-        # Calculate pressure for current temperature
+        # Calculate pressure slice for current temperature
         P_slice = van_der_waals_equation(V_range, T_current, a_val, b_val, n_val)
         P_slice = np.where(P_slice >= 0, P_slice, np.nan)
         
-        # Update left plot (P-V)
+        # Update the temperature slice line
         valid_mask = ~np.isnan(P_slice)
         if np.any(valid_mask):
-            line1.set_data(V_range[valid_mask], P_slice[valid_mask])
+            line.set_data_3d(V_range[valid_mask], 
+                             np.full_like(V_range[valid_mask], T_current), 
+                             P_slice[valid_mask])
         else:
-            line1.set_data([], [])
+            line.set_data_3d([], [], [])
         
-        # Update right plot (same as left for now, could be different view)
-        if np.any(valid_mask):
-            line2.set_data(V_range[valid_mask], P_slice[valid_mask])
-        else:
-            line2.set_data([], [])
+        # Update title with current temperature
+        ax.set_title(f'Van der Waals 3D: T = {T_current:.0f} K\na={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}', 
+                    fontsize=14, pad=20)
         
-        # Update titles
-        ax1.set_title(f'P-V Isotherme bei T = {T_current:.0f} K')
-        ax2.set_title(f'P-V Isotherme (Zoom) bei T = {T_current:.0f} K')
-        
-        return line1, line2
-    
-    # Set up axes
-    ax1.set_xlim(0, 1)
-    ax1.set_ylim(0, p_max_val)
-    ax1.set_xlabel('Volumen (V) [L]')
-    ax1.set_ylabel('Druck (P) [Pa]')
-    ax1.grid(True, alpha=0.3)
-    
-    ax2.set_xlim(0, 0.2)  # Zoomed view
-    ax2.set_ylim(0, p_max_val * 0.5)
-    ax2.set_xlabel('Volumen (V) [L]')
-    ax2.set_ylabel('Druck (P) [Pa]')
-    ax2.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
+        return line,
     
     # Create animation
     anim = animation.FuncAnimation(fig, animate_frame, frames=num_frames, 
-                                 interval=200, blit=True, repeat=True)
+                                 interval=300, blit=False, repeat=True)
     
-    # Convert to HTML
-    html_str = anim.to_jshtml()
+    # Convert to HTML with better settings
+    html_str = anim.to_jshtml(fps=3, embed_frames=True, default_mode='loop')
     plt.close(fig)
     
     return html_str
@@ -204,8 +203,6 @@ def create_3d_pbt_diagram():
         ax3d.set_ylabel('Temperatur (T) [K]')
         ax3d.set_zlabel('Druck (P) [Pa]')
         ax3d.set_zlim(0, p_max_val)
-        
-        # Add animation indicator to title
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
         st.pyplot(fig_3d)
@@ -230,11 +227,15 @@ def create_3d_pbt_diagram():
         
         st.pyplot(fig_2d)
     
-    # Display animation if available
+    # Display animation if available (single, well-fitted)
     if 'animation_html' in st.session_state:
         st.markdown("---")
-        st.subheader("🎬 Temperatur-Animation")
-        st.components.v1.html(st.session_state.animation_html, height=500, scrolling=True)
+        st.subheader("🎬 3D Temperatur-Animation")
+        st.markdown("**Die rote Linie bewegt sich durch verschiedene Temperaturen auf der 3D-Oberfläche**")
+        
+        # Use a container with better sizing
+        with st.container():
+            st.components.v1.html(st.session_state.animation_html, height=600, scrolling=False)
     
     # Add information section
     st.markdown("---")
@@ -244,14 +245,19 @@ def create_3d_pbt_diagram():
     - **Parameter a & b**: Gib präzise Van der Waals Parameter für verschiedene Gase ein
     - **Stoffmenge n**: Passe die Anzahl der Mol an
     - **P-Achse Max**: Ändere den maximalen Druck für bessere Visualisierung
-    - **🎬 Animation generieren**: Erstellt eine flüssige HTML5-Animation (einmalig generieren, dann wiederverwenden)
+    - **🎬 Animation generieren**: Erstellt eine 3D-Animation der sich bewegenden Temperaturlinie
     
-    **Animations-Features:**
-    - **Effizient für Server**: Keine ständigen Neuladezyklen
-    - **Einstellbare Frames**: 20-80 Frames für verschiedene Qualitätsstufen
-    - **Flüssige Wiedergabe**: HTML5-basierte Animation läuft im Browser
-    - **Wiederverwendbar**: Einmal generiert, kann beliebig oft abgespielt werden
-    - **Zwei Ansichten**: Vollansicht und Zoom-Ansicht der P-V Isotherme
+    **3D Animations-Features:**
+    - **Echte 3D-Animation**: Zeigt die Van der Waals Oberfläche mit beweglicher roter Linie
+    - **Temperatur-Sweep**: Die rote Linie bewegt sich von 200K bis 400K durch die 3D-Oberfläche
+    - **Einstellbare Qualität**: 20-80 Frames für verschiedene Glätte-Level
+    - **Browser-optimiert**: Läuft flüssig ohne Server-Belastung
+    - **Interaktive Kontrollen**: Play/Pause/Geschwindigkeit direkt in der Animation
+    
+    **Physikalische Bedeutung:**
+    - Die **rote Linie** zeigt P-V Verhalten bei konstanter Temperatur (Isotherme)
+    - **Niedrige T**: Steile Kurven, starke Druckanstiege
+    - **Hohe T**: Flachere Kurven, mehr ideales Gasverhalten
     
     **Aktuelle CO₂ Parameter:**
     - a = 364,0 Pa·L²/mol² (zwischenmolekulare Anziehung)
