@@ -58,7 +58,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up the figure with two subplots side by side
-    fig = plt.figure(figsize=(14, 8))
+    fig = plt.figure(figsize=(12, 6))
     
     # 3D subplot
     ax3d = fig.add_subplot(121, projection='3d')
@@ -245,8 +245,8 @@ def create_3d_pbt_diagram():
         st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
         st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
         
-        # Use responsive iframe that adapts to window size
-        st.components.v1.html(st.session_state.animation_html, scrolling=False)
+        # Use container with responsive height but within reasonable bounds
+        st.components.v1.html(st.session_state.animation_html, height=500, scrolling=False)
     
     # Add information section
     st.markdown("---")
