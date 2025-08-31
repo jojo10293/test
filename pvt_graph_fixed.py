@@ -146,10 +146,8 @@ def create_3d_pbt_diagram():
         
         # Display logo above the title
         st.markdown(f"""
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <div style="width: 200px; height: auto;">
-                {logo_svg}
-            </div>
+        <div style="width: 200px; height: auto; margin-bottom: 20px;">
+            {logo_svg}
         </div>
         """, unsafe_allow_html=True)
         
