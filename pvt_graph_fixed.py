@@ -138,7 +138,28 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
 def create_3d_pbt_diagram():
     # Streamlit page configuration
     st.set_page_config(page_title="Van der Waals 3D PVT Diagramm", layout="wide")
-    st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
+    
+    # Add logo in upper left corner
+    try:
+        with open("logo_owks_white.svg", "r") as f:
+            logo_svg = f.read()
+        
+        # Create columns for logo and title
+        col_logo, col_title = st.columns([1, 4])
+        
+        with col_logo:
+            st.markdown(f"""
+            <div style="padding-top: 10px;">
+                {logo_svg}
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_title:
+            st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
+            
+    except FileNotFoundError:
+        st.warning("Logo 'logo_owks_white.svg' nicht gefunden. Bitte Datei in das gleiche Verzeichnis legen.")
+        st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
     
     # Sidebar for controls
     st.sidebar.header("Parameter")
