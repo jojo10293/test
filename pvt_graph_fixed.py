@@ -163,7 +163,7 @@ def create_3d_pbt_diagram():
         # Display logo using st.image with better control
         # First try to display as HTML
         st.markdown(f"""
-        <div style="width: 200px; height: auto; margin-bottom: 20px;">
+        <div style="width: 400px; height: auto; margin-bottom: 20px;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
