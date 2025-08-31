@@ -65,7 +65,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax3d = fig.add_subplot(121, projection='3d')
     ax3d.plot_surface(V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.6, 
                      linewidth=0, antialiased=False)
-    line3d, = ax3d.plot([], [], [], 'red', linewidth=6, alpha=1.0, zorder=1000)
+    line3d, = ax3d.plot([], [], [], 'red', linewidth=3, alpha=1.0, zorder=1000)
     
     ax3d.set_xlabel('Volumen (V) [L]', fontsize=10)
     ax3d.set_ylabel('Temperatur (T) [K]', fontsize=10)
@@ -241,7 +241,7 @@ def create_3d_pbt_diagram():
         if np.any(valid_mask):
             ax3d.plot(V_slice_range[valid_mask],
                      np.full_like(V_slice_range[valid_mask], T_slice_val),
-                     P_slice[valid_mask], 'red', linewidth=6, 
+                     P_slice[valid_mask], 'red', linewidth=3, 
                      zorder=1000, alpha=1.0)
         
         # Set labels and limits
