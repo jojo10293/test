@@ -279,7 +279,7 @@ def create_3d_pbt_diagram():
         st.subheader("3D PVT Oberfläche")
         
         # Create 3D plot with cached data
-        fig_3d = plt.figure(figsize=(9, 8))
+        fig_3d = plt.figure(figsize=(12, 8))
         ax3d = fig_3d.add_subplot(111, projection='3d')
         
         # Create 3D surface plot with reduced complexity for speed
