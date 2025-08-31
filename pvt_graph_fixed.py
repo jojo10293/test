@@ -58,7 +58,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up figure with fixed, larger size and better spacing
-    fig = plt.figure(figsize=(14, 7))  # Adjusted size for better proportions
+    fig = plt.figure(figsize=(16*0.8, 8*0.8))
     
     # 3D subplot with more space allocation
     ax3d = fig.add_subplot(121, projection='3d')
@@ -82,8 +82,8 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax2d.set_ylim(0, p_max_val)
     ax2d.grid(True, alpha=0.3)
     
-    # Use tight_layout with padding for better automatic spacing
-    plt.tight_layout(pad=3.0)
+    # Adjust layout to prevent cutoff of both 3D plot and titles
+    plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
     
     def animate_frame(frame):
         T_current = temps[frame]
@@ -165,7 +165,7 @@ def create_3d_pbt_diagram():
         # Display logo using st.image with better control
         # First try to display as HTML
         st.markdown(f"""
-        <div style="width: 250px; height: auto; margin-bottom: 20px;">
+        <div style="width: 400px; height: auto; margin-bottom: 20px;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
@@ -272,61 +272,56 @@ def create_3d_pbt_diagram():
     P_slice = np.where(np.isfinite(P_slice), P_slice, np.nan)
     #P_slice = np.where(P_slice > 0, P_slice, np.nan)
 
-    # Create two columns for the plots
-    col1, col2 = st.columns(2)
+    # Create combined figure with both plots (like in animation)
+    st.subheader("Van der Waals PVT Diagramm: 3D Oberfläche & 2D Isotherme")
     
-    with col1:
-        st.subheader("3D PVT Oberfläche")
-        
-        # Create 3D plot with cached data
-        fig_3d = plt.figure(figsize=(40, 8))  # Optimal size for 3D plot
-        ax3d = fig_3d.add_subplot(111, projection='3d')
-        
-        # Create 3D surface plot with reduced complexity for speed
-        surface = ax3d.plot_surface(
-            V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.7,
-            linewidth=0, antialiased=False, rcount=50, ccount=50  # Reduced surface resolution
-        )
-        
-        # Add temperature slice line - ensure it's always visible on top
-        valid_mask = ~np.isnan(P_slice)
-        if np.any(valid_mask):
-            ax3d.plot(V_slice_range[valid_mask],
-                     np.full_like(V_slice_range[valid_mask], T_slice_val),
-                     P_slice[valid_mask], 'red', linewidth=3, 
-                     zorder=1000, alpha=1.0)
-        
-        # Set labels and limits
-        ax3d.set_xlabel('Volumen (V) [L]')
-        ax3d.set_ylabel('Temperatur (T) [K]')
-        ax3d.set_zlabel('Druck (P) [Pa]')
-        ax3d.set_zlim(0, p_max_val)
-        ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
-        
-        # Manual spacing specifically for 3D plot to show all axes
-        plt.subplots_adjust(left=0.05, right=0.3, top=0.9, bottom=0.1)
-        
-        st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
+    # Create single figure with both subplots
+    fig_combined = plt.figure(figsize=(16, 8))
     
-    with col2:
-        st.subheader("P-V Isotherme (2D Schnitt)")
-        
-        # Create 2D plot (this is already fast)
-        fig_2d = plt.figure(figsize=(10, 8))
-        ax2d = fig_2d.add_subplot(111)
-        
-        # Plot 2D slice
-        valid_mask_2d = ~np.isnan(P_slice)
-        if np.any(valid_mask_2d):
-            ax2d.plot(V_slice_range[valid_mask_2d], P_slice[valid_mask_2d], 'red', linewidth=3)
-        
-        ax2d.set_xlabel('Volumen (V) [L]')
-        ax2d.set_ylabel('Druck (P) [Pa]')
-        ax2d.set_ylim(0, p_max_val)
-        ax2d.set_title(f'P-V Isotherme bei T = {T_slice_val:.0f} K')
-        ax2d.grid(True, alpha=0.3)
-        
-        st.pyplot(fig_2d, clear_figure=True)  # Clear figure for memory optimization
+    # 3D subplot (left side)
+    ax3d = fig_combined.add_subplot(121, projection='3d')
+    
+    # Create 3D surface plot
+    surface = ax3d.plot_surface(
+        V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.7,
+        linewidth=0, antialiased=False, rcount=50, ccount=50
+    )
+    
+    # Add temperature slice line
+    valid_mask = ~np.isnan(P_slice)
+    if np.any(valid_mask):
+        ax3d.plot(V_slice_range[valid_mask],
+                 np.full_like(V_slice_range[valid_mask], T_slice_val),
+                 P_slice[valid_mask], 'red', linewidth=3, 
+                 zorder=1000, alpha=1.0)
+    
+    # Set 3D plot labels and limits
+    ax3d.set_xlabel('Volumen (V) [L]')
+    ax3d.set_ylabel('Temperatur (T) [K]')
+    ax3d.set_zlabel('Druck (P) [Pa]')
+    ax3d.set_zlim(0, p_max_val)
+    ax3d.set_title(f'3D PVT Oberfläche\na={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
+    
+    # 2D subplot (right side)
+    ax2d = fig_combined.add_subplot(122)
+    
+    # Plot 2D slice
+    valid_mask_2d = ~np.isnan(P_slice)
+    if np.any(valid_mask_2d):
+        ax2d.plot(V_slice_range[valid_mask_2d], P_slice[valid_mask_2d], 'red', linewidth=3)
+    
+    # Set 2D plot labels and limits
+    ax2d.set_xlabel('Volumen (V) [L]')
+    ax2d.set_ylabel('Druck (P) [Pa]')
+    ax2d.set_ylim(0, p_max_val)
+    ax2d.set_title(f'P-V Isotherme\nT = {T_slice_val:.0f} K')
+    ax2d.grid(True, alpha=0.3)
+    
+    # Adjust layout to prevent cutoff and provide proper spacing
+    plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
+    
+    # Display the combined figure
+    st.pyplot(fig_combined, clear_figure=True)
     
     # Display animation if available
     if 'animation_html' in st.session_state:
