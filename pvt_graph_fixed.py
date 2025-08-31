@@ -304,7 +304,7 @@ def create_3d_pbt_diagram():
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
         # Adjust layout to prevent cutoff of 3D plot with more generous margins
-        plt.subplots_adjust(left=0.05, right=0.85, top=0.9, bottom=0.1)
+        plt.subplots_adjust(left=0.05, right=0.75, top=0.9, bottom=0.1)
         
         st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
