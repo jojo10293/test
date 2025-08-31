@@ -161,7 +161,7 @@ def create_3d_pbt_diagram():
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b_input")
     
     n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1, key="n_slider")
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=1500000, value=P_max_init, step=1000, key="p_max_slider")
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=15000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Animation controls
     st.sidebar.markdown("---")
