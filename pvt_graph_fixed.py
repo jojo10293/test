@@ -58,7 +58,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
     # Set up figure with fixed, larger size and better spacing
-    fig = plt.figure(figsize=(16*0.8, 8*0.8))
+    fig = plt.figure(figsize=(14, 7))  # Adjusted size for better proportions
     
     # 3D subplot with more space allocation
     ax3d = fig.add_subplot(121, projection='3d')
@@ -82,8 +82,8 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax2d.set_ylim(0, p_max_val)
     ax2d.grid(True, alpha=0.3)
     
-    # Adjust layout to prevent cutoff of both 3D plot and titles
-    plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
+    # Use tight_layout with padding for better automatic spacing
+    plt.tight_layout(pad=3.0)
     
     def animate_frame(frame):
         T_current = temps[frame]
@@ -165,7 +165,7 @@ def create_3d_pbt_diagram():
         # Display logo using st.image with better control
         # First try to display as HTML
         st.markdown(f"""
-        <div style="width: 400px; height: auto; margin-bottom: 20px;">
+        <div style="width: 250px; height: auto; margin-bottom: 20px;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
@@ -279,7 +279,7 @@ def create_3d_pbt_diagram():
         st.subheader("3D PVT Oberfläche")
         
         # Create 3D plot with cached data
-        fig_3d = plt.figure(figsize=(13, 8))  # Increased width to prevent axis cutoff
+        fig_3d = plt.figure(figsize=(12, 8))  # Optimal size for 3D plot
         ax3d = fig_3d.add_subplot(111, projection='3d')
         
         # Create 3D surface plot with reduced complexity for speed
@@ -303,8 +303,8 @@ def create_3d_pbt_diagram():
         ax3d.set_zlim(0, p_max_val)
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
-        # Adjust layout to prevent cutoff of 3D plot with more generous margins
-        plt.subplots_adjust(left=0.05, right=0.95, top=0.9, bottom=0.1)  # right increased from 0.85 to 0.95
+        # Use tight_layout for better automatic spacing
+        plt.tight_layout()
         
         st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
