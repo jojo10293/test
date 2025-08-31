@@ -202,9 +202,7 @@ def create_3d_pbt_diagram():
     p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=15000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Show initial popup dialog for animation creation (after parameters are defined)
-    if 'initial_popup_shown' not in st.session_state:
-        st.session_state.initial_popup_shown = True
-        
+    if 'popup_decision_made' not in st.session_state:
         # Create popup-like dialog with info message
         st.info("🎬 **Animation beim Start erstellen?**")
         
@@ -221,27 +219,21 @@ def create_3d_pbt_diagram():
             col_yes, col_no = st.columns(2)
             with col_yes:
                 if st.button("✅ Ja, Animation erstellen", key="popup_yes", use_container_width=True):
-                    st.session_state.create_initial_animation = True
+                    # Directly create animation here without rerun
                     st.session_state.popup_decision_made = True
+                    with st.spinner('Generiere Animation... Bitte warten.'):
+                        animation_html = create_temperature_animation(60, a_val, b_val, n_val, p_max_val)
+                        st.session_state.animation_html = animation_html
+                    st.success("Animation wurde erstellt!")
                     st.rerun()
             
             with col_no:
                 if st.button("⏭️ Später erstellen", key="popup_no", use_container_width=True):
-                    st.session_state.create_initial_animation = False
                     st.session_state.popup_decision_made = True
                     st.rerun()
         
         # Stop execution here until user makes a choice
-        if 'popup_decision_made' not in st.session_state:
-            st.stop()
-    
-    # Check if we need to create initial animation (after popup decision)
-    if (st.session_state.get('create_initial_animation', False) and 
-        'animation_html' not in st.session_state):
-        with st.spinner('Generiere Animation... Bitte warten.'):
-            animation_html = create_temperature_animation(60, a_val, b_val, n_val, p_max_val)  # Default 60 frames
-            st.session_state.animation_html = animation_html
-            st.session_state.create_initial_animation = False  # Reset flag
+        st.stop()
     
     # Animation controls
     st.sidebar.markdown("---")
