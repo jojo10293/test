@@ -57,11 +57,10 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
     #P_mesh = np.where(P_mesh >= 0, P_mesh, np.nan)
     
-    # Set up figure with fixed, larger size
+    # Set up figure with fixed, larger size and better spacing
     fig = plt.figure(figsize=(16*0.8, 8*0.8))
-    fig.set_tight_layout(True)
     
-    # 3D subplot
+    # 3D subplot with more space allocation
     ax3d = fig.add_subplot(121, projection='3d')
     ax3d.plot_surface(V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.6, 
                      linewidth=0, antialiased=False)
@@ -78,6 +77,13 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax2d = fig.add_subplot(122)
     line2d, = ax2d.plot([], [], 'red', linewidth=3)
     ax2d.set_xlabel('Volumen (V) [L]', fontsize=12)
+    ax2d.set_ylabel('Druck (P) [Pa]', fontsize=12)
+    ax2d.set_xlim(0, 1)
+    ax2d.set_ylim(0, p_max_val)
+    ax2d.grid(True, alpha=0.3)
+    
+    # Adjust layout to prevent cutoff
+    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.1, wspace=0.3)
     ax2d.set_ylabel('Druck (P) [Pa]', fontsize=12)
     ax2d.set_xlim(0, 1)
     ax2d.set_ylim(0, p_max_val)
@@ -300,6 +306,9 @@ def create_3d_pbt_diagram():
         ax3d.set_zlabel('Druck (P) [Pa]')
         ax3d.set_zlim(0, p_max_val)
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
+        
+        # Adjust layout to prevent cutoff of 3D plot
+        plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
         
         st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
