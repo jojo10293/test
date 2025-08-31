@@ -148,7 +148,7 @@ def create_3d_pbt_diagram():
     a_init = 364.0 * 10**3  # Van der Waals parameter a for CO₂ [Pa·L²/mol²]
     b_init = 0.04267  # Van der Waals parameter b for CO₂ [L/mol]
     n_init = 1.0  # Changed to float
-    P_max_init = 1000000  # Reset to reasonable default
+    P_max_init = 13000000  # Reset to reasonable default
     
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1, key="temp_slider")
@@ -232,7 +232,7 @@ def create_3d_pbt_diagram():
     
     # Handle numerical issues in slice calculation
     P_slice = np.where(np.isfinite(P_slice), P_slice, np.nan)
-    P_slice = np.where(P_slice > 0, P_slice, np.nan)
+    #P_slice = np.where(P_slice > 0, P_slice, np.nan)
 
     # Create two columns for the plots
     col1, col2 = st.columns(2)
