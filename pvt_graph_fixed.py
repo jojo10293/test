@@ -141,12 +141,18 @@ def create_3d_pbt_diagram():
     
     # Add logo in upper left corner
     try:
-        with open("logo_owks_white.svg", "r") as f:
+        with open("logo_owks_white.svg", "r", encoding='utf-8') as f:
             logo_svg = f.read()
         
-        # Display logo above the title
+        # Clean the SVG content to remove any stray HTML
+        logo_svg = logo_svg.strip()
+        if not logo_svg.startswith('<svg'):
+            # If it's not a proper SVG, skip it
+            raise ValueError("Invalid SVG format")
+        
+        # Display logo above the title with better styling
         st.markdown(f"""
-        <div style="width: 200px; height: auto; margin-bottom: 20px;">
+        <div style="width: 200px; height: auto; margin-bottom: 20px; display: block;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
@@ -154,8 +160,8 @@ def create_3d_pbt_diagram():
         # Title below the logo
         st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
             
-    except FileNotFoundError:
-        st.warning("Logo 'logo_owks_white.svg' nicht gefunden. Bitte Datei in das gleiche Verzeichnis legen.")
+    except (FileNotFoundError, ValueError, UnicodeDecodeError):
+        st.warning("Logo 'logo_owks_white.svg' nicht gefunden oder ungültig. Bitte Datei prüfen.")
         st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
     
     # Sidebar for controls
