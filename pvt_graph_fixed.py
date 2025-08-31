@@ -148,7 +148,7 @@ def create_3d_pbt_diagram():
     a_init = 364.0   # Van der Waals parameter a for CO₂ [Pa·L²/mol²]
     b_init = 0.04267  # Van der Waals parameter b for CO₂ [L/mol]
     n_init = 1.0  # Changed to float
-    P_max_init = 5000000
+    P_max_init = 100000  # Reset to reasonable default
     
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1, key="temp_slider")
@@ -161,7 +161,7 @@ def create_3d_pbt_diagram():
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b_input")
     
     n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1, key="n_slider")
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=10000000, value=P_max_init, step=1000, key="p_max_slider")
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=1000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Animation controls
     st.sidebar.markdown("---")
@@ -193,21 +193,31 @@ def create_3d_pbt_diagram():
     if 'surface_cache_key' not in st.session_state or st.session_state.surface_cache_key != cache_key:
         # Only recalculate if parameters changed
         with st.spinner('Berechne Oberfläche...'):
-            # Create volume and temperature ranges with optimized resolution
-            V_range = np.linspace(0.00001, 1, 150)  # Reduced from 200 for speed
-            T_range = np.linspace(200, 400, 150)
-            V_mesh, T_mesh = np.meshgrid(V_range, T_range)
+            try:
+                # Create volume and temperature ranges with optimized resolution
+                V_range = np.linspace(0.00001, 1, 150)  # Reduced from 200 for speed
+                T_range = np.linspace(200, 400, 150)
+                V_mesh, T_mesh = np.meshgrid(V_range, T_range)
 
-            # Calculate pressure surface once and cache it
-            P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
-            
-            # Cache the results
-            st.session_state.surface_cache_key = cache_key
-            st.session_state.V_range = V_range
-            st.session_state.T_range = T_range
-            st.session_state.V_mesh = V_mesh
-            st.session_state.T_mesh = T_mesh
-            st.session_state.P_mesh = P_mesh
+                # Calculate pressure surface once and cache it
+                P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
+                
+                # Handle potential numerical issues
+                P_mesh = np.where(np.isfinite(P_mesh), P_mesh, np.nan)
+                P_mesh = np.where(P_mesh > 0, P_mesh, np.nan)  # Mask non-physical pressures
+                
+                # Cache the results
+                st.session_state.surface_cache_key = cache_key
+                st.session_state.V_range = V_range
+                st.session_state.T_range = T_range
+                st.session_state.V_mesh = V_mesh
+                st.session_state.T_mesh = T_mesh
+                st.session_state.P_mesh = P_mesh
+                
+            except Exception as e:
+                st.error(f"Fehler bei der Berechnung: {str(e)}")
+                st.error("Bitte Parameter anpassen!")
+                return  # Exit function if calculation fails
     else:
         # Use cached data
         V_range = st.session_state.V_range
@@ -219,6 +229,10 @@ def create_3d_pbt_diagram():
     # Calculate pressure slice for current temperature (fast operation)
     V_slice_range = V_range
     P_slice = van_der_waals_equation(V_slice_range, T_slice_val, a_val, b_val, n_val)
+    
+    # Handle numerical issues in slice calculation
+    P_slice = np.where(np.isfinite(P_slice), P_slice, np.nan)
+    P_slice = np.where(P_slice > 0, P_slice, np.nan)
 
     # Create two columns for the plots
     col1, col2 = st.columns(2)
