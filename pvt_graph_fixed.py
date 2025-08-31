@@ -320,8 +320,8 @@ def create_3d_pbt_diagram():
     ax2d.set_title(f'P-V Isotherme\nT = {T_slice_val:.0f} K', fontsize=12)  # Same title style as animation
     ax2d.grid(True, alpha=0.3)  # Same grid settings as animation
     
-    # Use exact same layout as animation
-    plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
+    # Use more generous layout with bigger padding for less cramped appearance
+    plt.subplots_adjust(left=0.12, right=0.88, top=0.82, bottom=0.18, wspace=0.4)
     
     # Display the combined figure
     st.pyplot(fig_combined, clear_figure=True)
