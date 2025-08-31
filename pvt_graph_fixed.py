@@ -144,15 +144,26 @@ def create_3d_pbt_diagram():
         with open("logo_owks_white.svg", "r", encoding='utf-8') as f:
             logo_svg = f.read()
         
-        # Clean the SVG content to remove any stray HTML
+        # Clean the SVG content thoroughly
+        import re
+        
+        # Remove any potential HTML artifacts or comments
+        logo_svg = re.sub(r'<!--.*?-->', '', logo_svg, flags=re.DOTALL)
         logo_svg = logo_svg.strip()
-        if not logo_svg.startswith('<svg'):
-            # If it's not a proper SVG, skip it
+        
+        # Ensure it's a proper SVG
+        if not logo_svg.startswith('<?xml') and not logo_svg.startswith('<svg'):
             raise ValueError("Invalid SVG format")
         
-        # Display logo above the title with better styling
+        # Extract just the SVG part if there's XML declaration
+        svg_match = re.search(r'<svg.*?</svg>', logo_svg, flags=re.DOTALL)
+        if svg_match:
+            logo_svg = svg_match.group(0)
+        
+        # Display logo using st.image with better control
+        # First try to display as HTML
         st.markdown(f"""
-        <div style="width: 200px; height: auto; margin-bottom: 20px; display: block;">
+        <div style="width: 200px; height: auto; margin-bottom: 20px;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
@@ -160,9 +171,10 @@ def create_3d_pbt_diagram():
         # Title below the logo
         st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
             
-    except (FileNotFoundError, ValueError, UnicodeDecodeError):
-        st.warning("Logo 'logo_owks_white.svg' nicht gefunden oder ungültig. Bitte Datei prüfen.")
+    except (FileNotFoundError, ValueError, UnicodeDecodeError, Exception) as e:
+        # If all else fails, just show the title without logo
         st.title("3D PVT Diagramm - Van der Waals Zustandsgleichung")
+        st.info("Logo konnte nicht geladen werden.")
     
     # Sidebar for controls
     st.sidebar.header("Parameter")
