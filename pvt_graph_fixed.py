@@ -49,7 +49,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     temps = np.linspace(200, 400, num_frames)
     
     # Create volume and temperature ranges for 3D surface
-    V_range = np.linspace(0.00001, 1, 80)  # Reduced resolution for performance
+    V_range = np.linspace(0.01, 1, 80)  # Reduced resolution for performance
     T_range = np.linspace(200, 400, 80)
     V_mesh, T_mesh = np.meshgrid(V_range, T_range)
     
