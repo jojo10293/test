@@ -23,7 +23,7 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
     R = 8.314 * 10**3  # Universal gas constant [L·kPa/(mol·K)]
 
     # Avoid division by zero
-    V_safe = np.maximum(V, 0.001)
+    V_safe = np.maximum(V, 0.00001)
     T_safe = np.maximum(T, 1.0)
     
     # Check physical constraints (V > nb)
@@ -203,7 +203,7 @@ def create_3d_pbt_diagram():
                 P_mesh = van_der_waals_equation(V_mesh, T_mesh, a_val, b_val, n_val)
                 
                 # Handle potential numerical issues
-                P_mesh = np.where(np.isfinite(P_mesh), P_mesh, np.nan)
+                #P_mesh = np.where(np.isfinite(P_mesh), P_mesh, np.nan)
                 #P_mesh = np.where(P_mesh > 0, P_mesh, np.nan)  # Mask non-physical pressures
                 
                 # Cache the results
