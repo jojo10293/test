@@ -224,6 +224,7 @@ def create_3d_pbt_diagram():
                     with st.spinner('Generiere Animation... Bitte warten.'):
                         animation_html = create_temperature_animation(60, a_val, b_val, n_val, p_max_val)
                         st.session_state.animation_html = animation_html
+                        st.session_state.show_animation_first = True  # Flag to show animation first
                     st.success("Animation wurde erstellt!")
                     st.rerun()
             
@@ -266,6 +267,22 @@ def create_3d_pbt_diagram():
     
     # Create cache key for surface data
     cache_key = f"{a_val}_{b_val}_{n_val}_{p_max_val}"
+    
+    # Show animation first if it was just generated from popup
+    if st.session_state.get('show_animation_first', False) and 'animation_html' in st.session_state:
+        st.markdown("---")
+        st.subheader("🎬 Temperatur-Animation: 3D + 2D Ansichten")
+        st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
+        st.markdown("Die rote Linie bewegt sich durch verschiedene Temperaturen (200K bis 400K)")
+        
+        # Display animation with larger fixed height
+        st.components.v1.html(st.session_state.animation_html, height=1000, scrolling=False)
+        
+        # Reset the flag so animation appears in normal position on subsequent runs
+        st.session_state.show_animation_first = False
+        
+        st.markdown("---")
+        st.markdown("**Unten finden Sie auch die statischen Diagramme zum direkten Vergleich:**")
     
     # Cache expensive calculations
     if 'surface_cache_key' not in st.session_state or st.session_state.surface_cache_key != cache_key:
@@ -366,8 +383,8 @@ def create_3d_pbt_diagram():
     # Display the combined figure
     st.pyplot(fig_combined, clear_figure=True)
     
-    # Display animation if available
-    if 'animation_html' in st.session_state:
+    # Display animation if available (but not if already shown at top)
+    if 'animation_html' in st.session_state and not st.session_state.get('show_animation_first', False):
         st.markdown("---")
         st.subheader("🎬 Temperatur-Animation: 3D + 2D Ansichten")
         st.markdown("**Links: 3D Van der Waals Oberfläche | Rechts: 2D P-V Isotherme**")
