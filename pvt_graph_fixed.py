@@ -165,7 +165,7 @@ def create_3d_pbt_diagram():
         # Display logo using st.image with better control
         # First try to display as HTML
         st.markdown(f"""
-        <div style="width: 400px; height: auto; margin-bottom: 20px;">
+        <div style="width: 800px; height: auto; margin-bottom: 20px;">
             {logo_svg}
         </div>
         """, unsafe_allow_html=True)
@@ -204,6 +204,9 @@ def create_3d_pbt_diagram():
     # Animation controls
     st.sidebar.markdown("---")
     st.sidebar.subheader("Animation")
+    
+    # Highlight recommendation to generate animation
+    st.sidebar.info("💡 **Sehr empfohlen:** Generiere die Animation für ein besseres Verständnis der Temperaturabhängigkeit!")
     
     # Animation button and speed control
     col_anim1, col_anim2 = st.sidebar.columns(2)
