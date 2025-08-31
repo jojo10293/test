@@ -23,7 +23,7 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
     R = 8.314 * 10**3  # Universal gas constant [L·kPa/(mol·K)]
 
     # Avoid division by zero
-    V_safe = np.maximum(V, 0.001)
+    V_safe = np.maximum(V, 0.00001)
     T_safe = np.maximum(T, 1.0)
     
     # Check physical constraints (V > nb)
