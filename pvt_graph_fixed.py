@@ -148,7 +148,7 @@ def create_3d_pbt_diagram():
     a_init = 364.0   # Van der Waals parameter a for CO₂ [Pa·L²/mol²]
     b_init = 0.04267  # Van der Waals parameter b for CO₂ [L/mol]
     n_init = 1.0  # Changed to float
-    P_max_init = 500000
+    P_max_init = 5000000
     
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1, key="temp_slider")
@@ -161,7 +161,7 @@ def create_3d_pbt_diagram():
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b_input")
     
     n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1, key="n_slider")
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=1000000, value=P_max_init, step=1000, key="p_max_slider")
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=10000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Animation controls
     st.sidebar.markdown("---")
