@@ -172,8 +172,8 @@ def create_3d_pbt_diagram():
     with col_anim1:
         generate_animation = st.button("🎬 Animation generieren", key="generate_anim")
     with col_anim2:
-        animation_frames = st.selectbox("Frames", [20, 40, 60, 80], index=1, key="frames")
-    
+        animation_frames = st.selectbox("Frames", [20, 40, 60, 80, 120], index=2, key="frames")
+
     # Static animation display
     if generate_animation or 'animation_html' in st.session_state:
         if generate_animation:
@@ -301,28 +301,11 @@ def create_3d_pbt_diagram():
     st.markdown("---")
     st.subheader("Anleitung")
     st.markdown("""
-    - **Temperatur-Schnitt**: Verwende den Schieberegler, um die Temperatur der roten Linie im 3D-Plot zu ändern
-    - **Parameter a & b**: Gib präzise Van der Waals Parameter für verschiedene Gase ein
-    - **Stoffmenge n**: Passe die Anzahl der Mol an
-    - **P-Achse Max**: Ändere den maximalen Druck für bessere Visualisierung
-    - **🎬 Animation generieren**: Erstellt eine 3D-Animation der sich bewegenden Temperaturlinie
-    
-    **Animations-Features:**
-    - **Doppelte Ansicht**: 3D Van der Waals Oberfläche + 2D P-V Isotherme gleichzeitig
-    - **Synchronisiert**: Beide Animationen zeigen die gleiche bewegliche Temperaturlinie  
-    - **Temperatur-Sweep**: Rote Linie bewegt sich von 200K bis 400K
-    - **Einstellbare Qualität**: 20-80 Frames für verschiedene Glätte-Level
-    - **Browser-optimiert**: Stabile HTML5-Animation ohne Server-Belastung
-    - **Dauerschleife**: Animation läuft kontinuierlich mit Kontrollen
-    
-    **Physikalische Bedeutung:**
-    - Die **rote Linie** zeigt P-V Verhalten bei konstanter Temperatur (Isotherme)
-    - **Niedrige T**: Steile Kurven, starke Druckanstiege
-    - **Hohe T**: Flachere Kurven, mehr ideales Gasverhalten
-    
-    **Aktuelle CO₂ Parameter:**
-    - a = 364,0 Pa·L²/mol² (zwischenmolekulare Anziehung)
-    - b = 0,04267 L/mol (Molekülvolumen)
+    Mit diesem Tool kannst du das Verhalten eines realen Gases nach der Van der Waals Gleichung interaktiv erkunden. 
+    Über den Temperatur-Schnitt-Schieberegler lässt sich die rote Isotherme im 3D-Plot direkt verändern. 
+    Für einen anschaulichen Überblick kannst du ausserdem eine Animation generieren, in der die rote Linie flüssig durch verschiedene Temperaturen (200K bis 400K) läuft – so siehst du, wie sich die P-V-Isothermen mit steigender Temperatur verändern. 
+    Passe die Van der Waals Parameter (a, b), die Stoffmenge n und den maximalen Druck nach Bedarf an, um unterschiedliche Gase oder Bedingungen zu simulieren.
+    Die Animation zeigt dabei synchron die Entwicklung im 3D-Diagramm und als 2D-Schnitt.
     """)
     
     # Close matplotlib figures to prevent memory leaks
