@@ -141,6 +141,40 @@ def create_3d_pbt_diagram():
     # Streamlit page configuration
     st.set_page_config(page_title="Van der Waals 3D PVT Diagramm", layout="wide")
     
+    # Show initial popup dialog for animation creation
+    if 'initial_popup_shown' not in st.session_state:
+        st.session_state.initial_popup_shown = True
+        
+        # Create popup-like dialog with info message
+        st.info("🎬 **Animation beim Start erstellen?**")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown("""
+            **Möchten Sie gleich zu Beginn eine Animation erstellen?**
+            
+            ⏱️ *Hinweis: Die Animation dauert einen Moment zum Generieren, aber das Erlebnis ist deutlich besser!*
+            
+            Die Animation zeigt, wie sich die Van der Waals Oberfläche bei verschiedenen Temperaturen verhält.
+            """)
+            
+            col_yes, col_no = st.columns(2)
+            with col_yes:
+                if st.button("✅ Ja, Animation erstellen", key="popup_yes", use_container_width=True):
+                    st.session_state.create_initial_animation = True
+                    st.session_state.popup_decision_made = True
+                    st.rerun()
+            
+            with col_no:
+                if st.button("⏭️ Später erstellen", key="popup_no", use_container_width=True):
+                    st.session_state.create_initial_animation = False
+                    st.session_state.popup_decision_made = True
+                    st.rerun()
+        
+        # Stop execution here until user makes a choice
+        if 'popup_decision_made' not in st.session_state:
+            st.stop()
+    
     # Add logo in upper left corner
     try:
         with open("logo_owks_white.svg", "r", encoding='utf-8') as f:
@@ -215,13 +249,22 @@ def create_3d_pbt_diagram():
     with col_anim2:
         animation_frames = st.selectbox("Frames", [20, 40, 60, 80, 120], index=2, key="frames")
 
+    # Check if animation should be generated (either from button or initial popup)
+    should_generate_animation = generate_animation or (
+        st.session_state.get('create_initial_animation', False) and 
+        'animation_html' not in st.session_state
+    )
+
     # Static animation display
-    if generate_animation or 'animation_html' in st.session_state:
-        if generate_animation:
-            # Generate animation only when button is clicked
+    if should_generate_animation or 'animation_html' in st.session_state:
+        if should_generate_animation:
+            # Generate animation when button is clicked or initial popup choice was yes
             with st.spinner('Generiere Animation... Bitte warten.'):
                 animation_html = create_temperature_animation(animation_frames, a_val, b_val, n_val, p_max_val)
                 st.session_state.animation_html = animation_html
+                # Reset the initial animation flag after creation
+                if st.session_state.get('create_initial_animation', False):
+                    st.session_state.create_initial_animation = False
         
         if 'animation_html' in st.session_state:
             st.sidebar.success("✅ Animation bereit!")
