@@ -272,52 +272,55 @@ def create_3d_pbt_diagram():
     P_slice = np.where(np.isfinite(P_slice), P_slice, np.nan)
     #P_slice = np.where(P_slice > 0, P_slice, np.nan)
 
-    # Create combined figure with both plots (like in animation)
+    # Create combined figure with both plots (using same design as animation)
     st.subheader("Van der Waals PVT Diagramm: 3D Oberfläche & 2D Isotherme")
     
-    # Create single figure with both subplots
-    fig_combined = plt.figure(figsize=(16, 8))
+    # Create single figure with exact same settings as animation
+    fig_combined = plt.figure(figsize=(16*0.8, 8*0.8))  # Same as animation
     
-    # 3D subplot (left side)
+    # 3D subplot (left side) - same settings as animation
     ax3d = fig_combined.add_subplot(121, projection='3d')
     
-    # Create 3D surface plot
+    # Create 3D surface plot with same settings as animation
     surface = ax3d.plot_surface(
-        V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.7,
-        linewidth=0, antialiased=False, rcount=50, ccount=50
+        V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.6,  # Same alpha as animation
+        linewidth=0, antialiased=False  # Same settings as animation
     )
     
-    # Add temperature slice line
+    # Add temperature slice line with same settings as animation
     valid_mask = ~np.isnan(P_slice)
     if np.any(valid_mask):
         ax3d.plot(V_slice_range[valid_mask],
                  np.full_like(V_slice_range[valid_mask], T_slice_val),
                  P_slice[valid_mask], 'red', linewidth=3, 
-                 zorder=1000, alpha=1.0)
+                 zorder=1000, alpha=1.0)  # Same settings as animation
     
-    # Set 3D plot labels and limits
-    ax3d.set_xlabel('Volumen (V) [L]')
-    ax3d.set_ylabel('Temperatur (T) [K]')
-    ax3d.set_zlabel('Druck (P) [Pa]')
+    # Set 3D plot labels and limits - same as animation
+    ax3d.set_xlabel('Volumen (V) [L]', fontsize=10)  # Same fontsize as animation
+    ax3d.set_ylabel('Temperatur (T) [K]', fontsize=10)  # Same fontsize as animation
+    ax3d.set_zlabel('Druck (P) [Pa]', fontsize=10)  # Same fontsize as animation
+    ax3d.set_xlim(0, 1)  # Same limits as animation
+    ax3d.set_ylim(200, 400)  # Same limits as animation
     ax3d.set_zlim(0, p_max_val)
-    ax3d.set_title(f'3D PVT Oberfläche\na={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
+    ax3d.set_title(f'Van der Waals 3D\nT = {T_slice_val:.0f} K', fontsize=12)  # Same title style as animation
     
-    # 2D subplot (right side)
+    # 2D subplot (right side) - same settings as animation
     ax2d = fig_combined.add_subplot(122)
     
-    # Plot 2D slice
+    # Plot 2D slice with same settings as animation
     valid_mask_2d = ~np.isnan(P_slice)
     if np.any(valid_mask_2d):
-        ax2d.plot(V_slice_range[valid_mask_2d], P_slice[valid_mask_2d], 'red', linewidth=3)
+        ax2d.plot(V_slice_range[valid_mask_2d], P_slice[valid_mask_2d], 'red', linewidth=3)  # Same as animation
     
-    # Set 2D plot labels and limits
-    ax2d.set_xlabel('Volumen (V) [L]')
-    ax2d.set_ylabel('Druck (P) [Pa]')
+    # Set 2D plot labels and limits - same as animation
+    ax2d.set_xlabel('Volumen (V) [L]', fontsize=12)  # Same fontsize as animation
+    ax2d.set_ylabel('Druck (P) [Pa]', fontsize=12)  # Same fontsize as animation
+    ax2d.set_xlim(0, 1)  # Same limits as animation
     ax2d.set_ylim(0, p_max_val)
-    ax2d.set_title(f'P-V Isotherme\nT = {T_slice_val:.0f} K')
-    ax2d.grid(True, alpha=0.3)
+    ax2d.set_title(f'P-V Isotherme\nT = {T_slice_val:.0f} K', fontsize=12)  # Same title style as animation
+    ax2d.grid(True, alpha=0.3)  # Same grid settings as animation
     
-    # Adjust layout to prevent cutoff and provide proper spacing
+    # Use exact same layout as animation
     plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
     
     # Display the combined figure
