@@ -275,8 +275,8 @@ def create_3d_pbt_diagram():
     # Create combined figure with both plots (using same design as animation)
     st.subheader("Van der Waals PVT Diagramm: 3D Oberfläche & 2D Isotherme")
     
-    # Create single figure with exact same settings as animation
-    fig_combined = plt.figure(figsize=(16*0.8, 8*0.8))  # Same as animation
+    # Create single figure with smaller size for more white space
+    fig_combined = plt.figure(figsize=(14, 7))  # Reduced from (16*0.8, 8*0.8) = (12.8, 6.4)
     
     # 3D subplot (left side) - same settings as animation
     ax3d = fig_combined.add_subplot(121, projection='3d')
