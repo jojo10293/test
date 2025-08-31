@@ -223,10 +223,6 @@ def create_3d_pbt_diagram():
                 if st.button("✅ Ja, Animation erstellen", key="popup_yes", use_container_width=True):
                     st.session_state.create_initial_animation = True
                     st.session_state.popup_decision_made = True
-                    # Immediately generate animation with current parameters
-                    with st.spinner('Generiere Animation... Bitte warten.'):
-                        animation_html = create_temperature_animation(60, a_val, b_val, n_val, p_max_val)  # Default 60 frames
-                        st.session_state.animation_html = animation_html
                     st.rerun()
             
             with col_no:
@@ -238,6 +234,14 @@ def create_3d_pbt_diagram():
         # Stop execution here until user makes a choice
         if 'popup_decision_made' not in st.session_state:
             st.stop()
+    
+    # Check if we need to create initial animation (after popup decision)
+    if (st.session_state.get('create_initial_animation', False) and 
+        'animation_html' not in st.session_state):
+        with st.spinner('Generiere Animation... Bitte warten.'):
+            animation_html = create_temperature_animation(60, a_val, b_val, n_val, p_max_val)  # Default 60 frames
+            st.session_state.animation_html = animation_html
+            st.session_state.create_initial_animation = False  # Reset flag
     
     # Animation controls
     st.sidebar.markdown("---")
