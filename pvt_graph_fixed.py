@@ -279,7 +279,7 @@ def create_3d_pbt_diagram():
         st.subheader("3D PVT Oberfläche")
         
         # Create 3D plot with cached data
-        fig_3d = plt.figure(figsize=(12, 8))  # Optimal size for 3D plot
+        fig_3d = plt.figure(figsize=(20, 8))  # Optimal size for 3D plot
         ax3d = fig_3d.add_subplot(111, projection='3d')
         
         # Create 3D surface plot with reduced complexity for speed
@@ -304,7 +304,7 @@ def create_3d_pbt_diagram():
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
         # Manual spacing specifically for 3D plot to show all axes
-        plt.subplots_adjust(left=0.05, right=0.8, top=0.9, bottom=0.1)
+        plt.subplots_adjust(left=0.05, right=0.3, top=0.9, bottom=0.1)
         
         st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
