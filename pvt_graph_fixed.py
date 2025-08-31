@@ -20,8 +20,8 @@ def van_der_waals_equation(V, T, a, b, n, p_max=None):
     - p_max: maximum pressure to display [Pa] (optional)
     - P: pressure [Pa]
     """
-    R = 8.314  # Universal gas constant [J/(mol·K)]
-    
+    R = 8.314 * 10**3  # Universal gas constant [L·kPa/(mol·K)]
+
     # Avoid division by zero
     V_safe = np.maximum(V, 0.00001)
     T_safe = np.maximum(T, 1.0)
@@ -161,7 +161,7 @@ def create_3d_pbt_diagram():
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b_input")
     
     n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1, key="n_slider")
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=10000000, value=P_max_init, step=1000, key="p_max_slider")
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=1000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Animation controls
     st.sidebar.markdown("---")
