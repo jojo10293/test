@@ -65,7 +65,7 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax3d = fig.add_subplot(121, projection='3d')
     ax3d.plot_surface(V_mesh, T_mesh, P_mesh, cmap='coolwarm', alpha=0.6, 
                      linewidth=0, antialiased=False)
-    line3d, = ax3d.plot([], [], [], 'red', linewidth=3, alpha=1.0, zorder=1000)
+    line3d, = ax3d.plot([], [], [], 'red', linewidth=6, alpha=1.0, zorder=1000)
     
     ax3d.set_xlabel('Volumen (V) [L]', fontsize=10)
     ax3d.set_ylabel('Temperatur (T) [K]', fontsize=10)
@@ -148,7 +148,7 @@ def create_3d_pbt_diagram():
     a_init = 364.0   # Van der Waals parameter a for CO₂ [Pa·L²/mol²]
     b_init = 0.04267  # Van der Waals parameter b for CO₂ [L/mol]
     n_init = 1.0  # Changed to float
-    P_max_init = 50000
+    P_max_init = 500000
     
     # Streamlit controls in sidebar
     T_slice_val = st.sidebar.slider('Temperatur-Schnitt (K)', min_value=200, max_value=400, value=T_init, step=1, key="temp_slider")
@@ -161,7 +161,7 @@ def create_3d_pbt_diagram():
         b_val = st.number_input('Parameter b', value=b_init, format="%.5f", key="param_b_input")
     
     n_val = st.sidebar.slider('Stoffmenge n (mol)', min_value=0.1, max_value=5.0, value=n_init, step=0.1, key="n_slider")
-    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=100000, value=P_max_init, step=1000, key="p_max_slider")
+    p_max_val = st.sidebar.slider('P-Achse Max (Pa)', min_value=1000, max_value=1000000, value=P_max_init, step=1000, key="p_max_slider")
     
     # Animation controls
     st.sidebar.markdown("---")
@@ -241,7 +241,7 @@ def create_3d_pbt_diagram():
         if np.any(valid_mask):
             ax3d.plot(V_slice_range[valid_mask],
                      np.full_like(V_slice_range[valid_mask], T_slice_val),
-                     P_slice[valid_mask], 'red', linewidth=3, 
+                     P_slice[valid_mask], 'red', linewidth=6, 
                      zorder=1000, alpha=1.0)
         
         # Set labels and limits
