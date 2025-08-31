@@ -82,12 +82,8 @@ def create_temperature_animation(num_frames, a_val, b_val, n_val, p_max_val):
     ax2d.set_ylim(0, p_max_val)
     ax2d.grid(True, alpha=0.3)
     
-    # Adjust layout to prevent cutoff
-    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.1, wspace=0.3)
-    ax2d.set_ylabel('Druck (P) [Pa]', fontsize=12)
-    ax2d.set_xlim(0, 1)
-    ax2d.set_ylim(0, p_max_val)
-    ax2d.grid(True, alpha=0.3)
+    # Adjust layout to prevent cutoff of both 3D plot and titles
+    plt.subplots_adjust(left=0.08, right=0.92, top=0.85, bottom=0.15, wspace=0.35)
     
     def animate_frame(frame):
         T_current = temps[frame]
@@ -307,8 +303,8 @@ def create_3d_pbt_diagram():
         ax3d.set_zlim(0, p_max_val)
         ax3d.set_title(f'Van der Waals: a={a_val:.0f}, b={b_val:.3f}, n={n_val:.1f}')
         
-        # Adjust layout to prevent cutoff of 3D plot
-        plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+        # Adjust layout to prevent cutoff of 3D plot with more generous margins
+        plt.subplots_adjust(left=0.05, right=0.85, top=0.9, bottom=0.1)
         
         st.pyplot(fig_3d, clear_figure=True)  # Clear figure for memory optimization
     
